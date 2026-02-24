@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="premium.css">
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 
 <body class="min-h-screen pb-20 px-3 overflow-x-hidden">
@@ -206,19 +205,159 @@
                 btn.innerHTML = 'Processant...';
                 btn.disabled = true;
 
-                // Add capturing class for styling
-                document.body.classList.add('capturing');
-
-                const canvas = await html2canvas(activitiesContainer, {
-                    backgroundColor: '#0f172a',
-                    scale: 2, // Better quality
-                    useCORS: true,
-                    logging: false,
-                    borderRadius: 20
+                // Collect activities data
+                const cards = activitiesContainer.querySelectorAll('.activity-card');
+                const activities = [];
+                cards.forEach(card => {
+                    activities.push({
+                        data: card.querySelector('[name="data"]').value,
+                        activitat: card.querySelector('[name="activitat"]').value,
+                        horaIni: card.querySelector('[name="hora_convocatoria"]').value,
+                        horaFi: card.querySelector('[name="hora_finalitzacio"]').value,
+                        participants: card.querySelector('[name="participants"]').value,
+                        categoria: card.querySelector('[name="categoria"]').value
+                    });
                 });
 
-                document.body.classList.remove('capturing');
+                // --- CANVAS RENDERER ---
+                const CARD_W = 800;
+                const PADDING = 48;
+                const CARD_INNER_W = CARD_W - PADDING * 2;
+                const HEADER_H = 90;
+                const ACTIVITY_H = 200; // height per activity block
+                const FOOTER_H = 50;
+                const TOTAL_H = HEADER_H + (ACTIVITY_H * activities.length) + FOOTER_H;
 
+                const canvas = document.createElement('canvas');
+                canvas.width = CARD_W;
+                canvas.height = TOTAL_H;
+                const ctx = canvas.getContext('2d');
+
+                // Background gradient
+                const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, TOTAL_H);
+                bgGrad.addColorStop(0, '#0f172a');
+                bgGrad.addColorStop(1, '#1e293b');
+                ctx.fillStyle = bgGrad;
+                roundRect(ctx, 0, 0, CARD_W, TOTAL_H, 28);
+                ctx.fill();
+
+                // Subtle top accent gradient
+                const accentGrad = ctx.createLinearGradient(0, 0, CARD_W, 0);
+                accentGrad.addColorStop(0, 'rgba(99,102,241,0.25)');
+                accentGrad.addColorStop(1, 'rgba(34,211,238,0.15)');
+                ctx.fillStyle = accentGrad;
+                roundRect(ctx, 0, 0, CARD_W, 6, [28, 28, 0, 0]);
+                ctx.fill();
+
+                // Try to load and draw logo
+                try {
+                    const logo = await loadImage('public/logo-white.png');
+                    const logoH = 50;
+                    const logoW = logo.width * (logoH / logo.height);
+                    ctx.drawImage(logo, CARD_W / 2 - logoW / 2, 20, logoW, logoH);
+                } catch {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 26px Outfit, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('BAR LA MARBELLA', CARD_W / 2, 58);
+                }
+
+                // Activities
+                activities.forEach((act, i) => {
+                    const baseY = HEADER_H + (i * ACTIVITY_H);
+
+                    // Separator line before each activity
+                    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(PADDING, baseY);
+                    ctx.lineTo(CARD_W - PADDING, baseY);
+                    ctx.stroke();
+
+                    // Activity number badge
+                    ctx.fillStyle = 'rgba(99,102,241,0.3)';
+                    roundRect(ctx, PADDING, baseY + 16, 32, 32, 8);
+                    ctx.fill();
+                    ctx.fillStyle = '#a5b4fc';
+                    ctx.font = 'bold 16px Outfit, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(i + 1, PADDING + 16, baseY + 37);
+
+                    // Activity name / date header
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 22px Outfit, sans-serif';
+                    ctx.textAlign = 'left';
+                    const titleText = act.activitat || '—';
+                    ctx.fillText(titleText, PADDING + 44, baseY + 38);
+
+                    // Date (right aligned)
+                    const dateStr = act.data ? new Date(act.data + 'T00:00:00').toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : '—';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '500 16px Outfit, sans-serif';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(dateStr, CARD_W - PADDING, baseY + 38);
+
+                    // Info row - draw 4 info pills
+                    const pills = [
+                        { label: 'INICI', value: act.horaIni || '—' },
+                        { label: 'FI', value: act.horaFi || '—' },
+                        { label: 'PARTICIPANTS', value: act.participants || '—' },
+                        { label: 'CATEGORIA', value: act.categoria || '—' }
+                    ];
+
+                    const pillW = CARD_INNER_W / 4;
+                    const pillStartY = baseY + 65;
+
+                    pills.forEach((pill, pi) => {
+                        const px = PADDING + pi * pillW;
+                        const py = pillStartY;
+                        const pw = pillW - 12;
+                        const ph = 90;
+
+                        // Pill background
+                        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                        roundRect(ctx, px, py, pw, ph, 12);
+                        ctx.fill();
+                        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                        ctx.lineWidth = 1;
+                        roundRect(ctx, px, py, pw, ph, 12);
+                        ctx.stroke();
+
+                        // Label
+                        ctx.fillStyle = '#64748b';
+                        ctx.font = '600 11px Outfit, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(pill.label, px + pw / 2, py + 22);
+
+                        // Value
+                        ctx.fillStyle = '#e2e8f0';
+                        ctx.font = 'bold 18px Outfit, sans-serif';
+                        ctx.textAlign = 'center';
+                        // Truncate if too long
+                        let val = pill.value;
+                        if (ctx.measureText(val).width > pw - 12) {
+                            while (ctx.measureText(val + '…').width > pw - 12 && val.length > 0) val = val.slice(0, -1);
+                            val = val + '…';
+                        }
+                        ctx.fillText(val, px + pw / 2, py + 56);
+                    });
+                });
+
+                // Footer
+                const footerY = TOTAL_H - FOOTER_H;
+                ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(PADDING, footerY);
+                ctx.lineTo(CARD_W - PADDING, footerY);
+                ctx.stroke();
+
+                ctx.fillStyle = '#475569';
+                ctx.font = '500 13px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Bar La Marbella · Report Activitats', CARD_W / 2, footerY + 30);
+
+                // --- Share ---
                 const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                 const file = new File([blob], 'report-marbella.png', { type: 'image/png' });
 
@@ -229,21 +368,48 @@
                         text: 'Aquí tens el resum de les activitats del cap de setmana.'
                     });
                 } else {
-                    // Fallback: Download
                     const link = document.createElement('a');
                     link.href = canvas.toDataURL('image/png');
                     link.download = 'report-marbella.png';
                     link.click();
-                    alert("El teu navegador no suporta l'enviament directe d'imatges. S'ha descarregat el report, ara pots adjuntar-lo a WhatsApp.");
                 }
+
             } catch (err) {
-                console.error("Error share:", err);
+                console.error('Error:', err);
                 alert("S'ha produït un error en generar la imatge.");
             } finally {
                 btn.innerHTML = originalBtnContent;
                 btn.disabled = false;
             }
         });
+
+        // Helper: rounded rect path
+        function roundRect(ctx, x, y, w, h, r) {
+            if (typeof r === 'number') r = [r, r, r, r];
+            const [tl, tr, br, bl] = r;
+            ctx.beginPath();
+            ctx.moveTo(x + tl, y);
+            ctx.lineTo(x + w - tr, y);
+            ctx.arcTo(x + w, y, x + w, y + tr, tr);
+            ctx.lineTo(x + w, y + h - br);
+            ctx.arcTo(x + w, y + h, x + w - br, y + h, br);
+            ctx.lineTo(x + bl, y + h);
+            ctx.arcTo(x, y + h, x, y + h - bl, bl);
+            ctx.lineTo(x, y + tl);
+            ctx.arcTo(x, y, x + tl, y, tl);
+            ctx.closePath();
+        }
+
+        // Helper: load image as promise
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = src;
+            });
+        }
     </script>
 </body>
 
