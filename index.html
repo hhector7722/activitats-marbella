@@ -221,19 +221,20 @@
 
                 // --- CANVAS RENDERER ---
                 const CARD_W = 800;
-                const PADDING = 48;
-                const CARD_INNER_W = CARD_W - PADDING * 2;
-                const HEADER_H = 90;
-                const ACTIVITY_H = 200; // height per activity block
-                const FOOTER_H = 50;
-                const TOTAL_H = HEADER_H + (ACTIVITY_H * activities.length) + FOOTER_H;
+                const PAD = 40;           // outer padding
+                const GAP = 14;           // gap between cells
+                const HEADER_H = 100;     // logo area
+                const CELL_H = 110;       // height of each 2x2 row pair
+                const ACT_H = CELL_H * 2 + GAP + PAD; // height per activity block
+                const FOOTER_H = 56;
+                const TOTAL_H = HEADER_H + (ACT_H * activities.length) + FOOTER_H;
 
                 const canvas = document.createElement('canvas');
                 canvas.width = CARD_W;
                 canvas.height = TOTAL_H;
                 const ctx = canvas.getContext('2d');
 
-                // Background gradient
+                // ── Background ──
                 const bgGrad = ctx.createLinearGradient(0, 0, CARD_W, TOTAL_H);
                 bgGrad.addColorStop(0, '#0f172a');
                 bgGrad.addColorStop(1, '#1e293b');
@@ -241,115 +242,99 @@
                 roundRect(ctx, 0, 0, CARD_W, TOTAL_H, 28);
                 ctx.fill();
 
-                // Subtle top accent gradient
+                // Top accent stripe
                 const accentGrad = ctx.createLinearGradient(0, 0, CARD_W, 0);
-                accentGrad.addColorStop(0, 'rgba(99,102,241,0.25)');
-                accentGrad.addColorStop(1, 'rgba(34,211,238,0.15)');
+                accentGrad.addColorStop(0, 'rgba(99,102,241,0.7)');
+                accentGrad.addColorStop(1, 'rgba(34,211,238,0.5)');
                 ctx.fillStyle = accentGrad;
                 roundRect(ctx, 0, 0, CARD_W, 6, [28, 28, 0, 0]);
                 ctx.fill();
 
-                // Try to load and draw logo
+                // ── Logo ──
                 try {
                     const logo = await loadImage('public/logo-white.png');
-                    const logoH = 50;
+                    const logoH = 54;
                     const logoW = logo.width * (logoH / logo.height);
-                    ctx.drawImage(logo, CARD_W / 2 - logoW / 2, 20, logoW, logoH);
+                    ctx.drawImage(logo, CARD_W / 2 - logoW / 2, 22, logoW, logoH);
                 } catch {
                     ctx.fillStyle = '#f8fafc';
-                    ctx.font = 'bold 26px Outfit, sans-serif';
+                    ctx.font = 'bold 28px sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText('BAR LA MARBELLA', CARD_W / 2, 58);
+                    ctx.fillText('BAR LA MARBELLA', CARD_W / 2, 66);
                 }
 
-                // Activities
+                // ── Activities: 2×2 grid ──
+                const CELL_W = (CARD_W - PAD * 2 - GAP) / 2;
+
                 activities.forEach((act, i) => {
-                    const baseY = HEADER_H + (i * ACTIVITY_H);
+                    const baseY = HEADER_H + (i * ACT_H);
 
-                    // Separator line before each activity
-                    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(PADDING, baseY);
-                    ctx.lineTo(CARD_W - PADDING, baseY);
-                    ctx.stroke();
+                    // Subtle separator between activities
+                    if (i > 0) {
+                        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(PAD, baseY);
+                        ctx.lineTo(CARD_W - PAD, baseY);
+                        ctx.stroke();
+                    }
 
-                    // Activity number badge
-                    ctx.fillStyle = 'rgba(99,102,241,0.3)';
-                    roundRect(ctx, PADDING, baseY + 16, 32, 32, 8);
-                    ctx.fill();
-                    ctx.fillStyle = '#a5b4fc';
-                    ctx.font = 'bold 16px Outfit, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(i + 1, PADDING + 16, baseY + 37);
-
-                    // Activity name / date header
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.font = 'bold 22px Outfit, sans-serif';
-                    ctx.textAlign = 'left';
-                    const titleText = act.activitat || '—';
-                    ctx.fillText(titleText, PADDING + 44, baseY + 38);
-
-                    // Date (right aligned)
-                    const dateStr = act.data ? new Date(act.data + 'T00:00:00').toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' }) : '—';
-                    ctx.fillStyle = '#94a3b8';
-                    ctx.font = '500 16px Outfit, sans-serif';
-                    ctx.textAlign = 'right';
-                    ctx.fillText(dateStr, CARD_W - PADDING, baseY + 38);
-
-                    // Info row - draw 4 info pills
-                    const pills = [
-                        { label: 'INICI', value: act.horaIni || '—' },
-                        { label: 'FI', value: act.horaFi || '—' },
-                        { label: 'PARTICIPANTS', value: act.participants || '—' },
-                        { label: 'CATEGORIA', value: act.categoria || '—' }
+                    // Grid positions: [col, row] → [x, y]
+                    const cells = [
+                        { label: 'Activitat', value: act.activitat, col: 0, row: 0 },
+                        {
+                            label: 'Data', value: act.data
+                                ? new Date(act.data + 'T00:00:00').toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+                                : '', col: 1, row: 0
+                        },
+                        { label: 'Participants', value: act.participants, col: 0, row: 1 },
+                        { label: 'Categoria', value: act.categoria, col: 1, row: 1 },
                     ];
 
-                    const pillW = CARD_INNER_W / 4;
-                    const pillStartY = baseY + 65;
+                    cells.forEach(({ label, value, col, row }) => {
+                        const cx = PAD + col * (CELL_W + GAP);
+                        const cy = baseY + PAD + row * (CELL_H + GAP);
+                        const cw = CELL_W;
+                        const ch = CELL_H;
 
-                    pills.forEach((pill, pi) => {
-                        const px = PADDING + pi * pillW;
-                        const py = pillStartY;
-                        const pw = pillW - 12;
-                        const ph = 90;
-
-                        // Pill background
-                        ctx.fillStyle = 'rgba(255,255,255,0.05)';
-                        roundRect(ctx, px, py, pw, ph, 12);
+                        // Cell background
+                        ctx.fillStyle = 'rgba(255,255,255,0.045)';
+                        roundRect(ctx, cx, cy, cw, ch, 14);
                         ctx.fill();
-                        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
                         ctx.lineWidth = 1;
-                        roundRect(ctx, px, py, pw, ph, 12);
+                        roundRect(ctx, cx, cy, cw, ch, 14);
                         ctx.stroke();
 
-                        // Label
+                        // Label — always full text, no truncation
                         ctx.fillStyle = '#64748b';
-                        ctx.font = '600 11px Outfit, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(pill.label, px + pw / 2, py + 22);
+                        ctx.font = '600 13px sans-serif';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(label.toUpperCase(), cx + 20, cy + 30);
 
                         // Value
-                        ctx.fillStyle = '#e2e8f0';
-                        ctx.font = 'bold 18px Outfit, sans-serif';
-                        ctx.textAlign = 'center';
-                        // Truncate if too long
-                        let val = pill.value;
-                        if (ctx.measureText(val).width > pw - 12) {
-                            while (ctx.measureText(val + '…').width > pw - 12 && val.length > 0) val = val.slice(0, -1);
-                            val = val + '…';
+                        ctx.fillStyle = value ? '#f1f5f9' : '#334155';
+                        ctx.font = 'bold 22px sans-serif';
+                        ctx.textAlign = 'left';
+                        // Wrap long values to fit cell width
+                        const maxW = cw - 40;
+                        let displayVal = value || '';
+                        if (displayVal && ctx.measureText(displayVal).width > maxW) {
+                            // Try smaller font
+                            ctx.font = 'bold 17px sans-serif';
                         }
-                        ctx.fillText(val, px + pw / 2, py + 56);
+                        ctx.fillText(displayVal, cx + 20, cy + 72);
                     });
                 });
+
 
                 // Footer
                 const footerY = TOTAL_H - FOOTER_H;
                 ctx.strokeStyle = 'rgba(255,255,255,0.05)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(PADDING, footerY);
-                ctx.lineTo(CARD_W - PADDING, footerY);
+                ctx.moveTo(PAD, footerY);
+                ctx.lineTo(CARD_W - PAD, footerY);
                 ctx.stroke();
 
                 ctx.fillStyle = '#475569';
