@@ -31,9 +31,10 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     color: white !important;
     transition: all 0.2s ease;
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
-    min-height: 40px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .btn-premium {
@@ -42,7 +43,6 @@ body {
     color: white;
     font-weight: 600;
     letter-spacing: 0.025em;
-    padding: 0.75rem !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
