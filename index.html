@@ -237,8 +237,8 @@
         const nextSunday = new Date(nextSaturday);
         nextSunday.setDate(nextSaturday.getDate() + 1);
 
-        document.querySelector('.day-group[data-day-name="Sábado"] input[type="date"]').valueAsDate = nextSaturday;
-        document.querySelector('.day-group[data-day-name="Domingo"] input[type="date"]').valueAsDate = nextSunday;
+        document.querySelector('.day-group[data-day-name="Dissabte"] input[type="date"]').valueAsDate = nextSaturday;
+        document.querySelector('.day-group[data-day-name="Diumenge"] input[type="date"]').valueAsDate = nextSunday;
 
         // Add 2nd activity (Tarda/Nit)
         document.querySelectorAll('.add-activity-btn').forEach(btn => {
@@ -294,25 +294,40 @@
                 const cards = document.querySelectorAll('.activity-card');
                 const activities = [];
                 cards.forEach(card => {
-                    activities.push({
-                        dia_setmana: card.querySelector('[name="dia_setmana"]').value,
-                        data: card.querySelector('[name="data"]').value,
-                        activitat: card.querySelector('[name="activitat"]').value,
-                        horaIni: card.querySelector('[name="hora_convocatoria"]').value,
-                        horaFi: card.querySelector('[name="hora_finalitzacio"]').value,
-                        participants: card.querySelector('[name="participants"]').value,
-                        categoria: card.querySelector('[name="categoria"]').value
-                    });
+                    const diaSetmana = card.querySelector('[name="dia_setmana"]').value;
+                    const data = card.querySelector('[name="data"]').value;
+                    const activitat = card.querySelector('[name="activitat"]').value;
+                    const horaIni = card.querySelector('[name="hora_convocatoria"]').value;
+                    const horaFi = card.querySelector('[name="hora_finalitzacio"]').value;
+                    const participants = card.querySelector('[name="participants"]').value;
+                    const categoria = card.querySelector('[name="categoria"]').value;
+
+                    // Only add if at least activity name is filled
+                    if (activitat || horaIni) {
+                        activities.push({
+                            dia_setmana: diaSetmana,
+                            data: data,
+                            activitat: activitat,
+                            horari: horaIni && horaFi ? `${horaIni} - ${horaFi}` : (horaIni || horaFi || ''),
+                            participants: participants,
+                            categoria: categoria
+                        });
+                    }
                 });
+
+                if (activities.length === 0) {
+                    alert("Si us plau, omple almenys una activitat.");
+                    return;
+                }
 
                 // --- CANVAS RENDERER ---
                 const CARD_W = 800;
                 const PAD = 40;           // outer padding
                 const GAP = 14;           // gap between cells
                 const HEADER_H = 100;     // logo area
-                const TITLE_H = 46;       // height for "SÁBADO" title above grid
-                const CELL_H = 110;       // height of each 2x2 cell
-                const ACT_H = TITLE_H + CELL_H * 2 + GAP + PAD; // total height per activity
+                const TITLE_H = 46;       // height for day title
+                const CELL_H = 110;       // height of each cell
+                const ACT_H = TITLE_H + CELL_H * 2 + GAP + 20; // height per activity
                 const FOOTER_H = 56;
                 const TOTAL_H = HEADER_H + (ACT_H * activities.length) + FOOTER_H;
 
@@ -388,16 +403,22 @@
 
                     const cells = [
                         { label: 'Activitat', value: act.activitat, col: 0, row: 0 },
-                        { label: 'Data', value: formattedDate, col: 1, row: 0 },
-                        { label: 'Participants', value: act.participants, col: 0, row: 1 },
-                        { label: 'Categoria', value: act.categoria, col: 1, row: 1 },
+                        { label: 'Horari', value: act.horari, col: 1, row: 0 },
+                        { label: 'Data', value: formattedDate, col: 0, row: 1 },
+                        { label: 'Participants', value: act.participants, col: 1, row: 1 },
+                        { label: 'Categoria', value: act.categoria, col: 0, row: 2, span: 2 },
                     ];
 
-                    cells.forEach(({ label, value, col, row }) => {
+                    const GRID_GAP = 12;
+                    const GRID_H = 80;
+
+                    cells.forEach(({ label, value, col, row, span }) => {
+                        let cw = CELL_W;
+                        if (span === 2) cw = CARD_W - PAD * 2;
+
                         const cx = PAD + col * (CELL_W + GAP);
-                        const cy = gridStartY + row * (CELL_H + GAP);
-                        const cw = CELL_W;
-                        const ch = CELL_H;
+                        const cy = gridStartY + row * (GRID_H + GRID_GAP);
+                        const ch = GRID_H;
 
                         // Cell background
                         ctx.fillStyle = 'rgba(255,255,255,0.045)';
