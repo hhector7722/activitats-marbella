@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Reporte d'Activitats - Marbella Premium</title>
+
+    <!-- Meta Tags for Link Sharing (WhatsApp, Telegram, etc.) -->
+    <meta property="og:title" content="Reporte d'Activitats - Marbella">
+    <meta property="og:description" content="Generador de reportes de actividad para el fin de semana.">
+    <meta property="og:image" content="https://activitats-marbella.vercel.app/public/logo-white.png">
+    <meta property="og:url" content="https://activitats-marbella.vercel.app/">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Reporte d'Activitats - Marbella">
+    <meta name="twitter:description" content="Generador de reportes de actividad para el fin de semana.">
+    <meta name="twitter:image" content="https://activitats-marbella.vercel.app/public/logo-white.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="premium.css">
+</head>
+
+<body class="min-h-screen pb-20 px-3 overflow-x-hidden">
+    <div class="max-w-lg mx-auto py-2">
+        <form id="reportForm" class="space-y-5">
+            <div id="captureArea" class="space-y-5 p-2 rounded-2xl">
+                <header class="mb-4 text-center flex justify-center">
+                    <img src="public/logo-white.png" alt="Bar La Marbella" class="h-12 w-auto object-contain">
+                </header>
+
+                <div id="daysContainer" class="space-y-4">
+                    <!-- Sábado -->
+                    <div class="day-group" data-day-name="Dissabte">
+                        <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                            <span
+                                class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            Dissabte
+                        </h2>
+                        <div class="activities-list space-y-3 relative">
+                            <!-- Actividad 1 -->
+                            <div
+                                class="activity-card glass rounded-2xl p-3 relative group animate-slide-up bg-slate-800/40">
+                                <input type="hidden" name="dia_setmana" value="Dissabte">
+                                <div class="grid grid-cols-[140px_1fr] gap-x-8 gap-y-2.5 items-start">
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Data</label>
+                                        <input type="date" name="data"
+                                            class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Activitat</label>
+                                        <input type="text" name="activitat"
+                                            class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Horari</label>
+                                        <div class="flex items-center gap-1 h-[36px]">
+                                            <input type="text" name="hora_convocatoria" inputmode="numeric" autocomplete="off"
+                                                placeholder="HH:MM" maxlength="5"
+                                                class="form-input flex-1 rounded-xl px-1 py-1.5 outline-none text-[11px] text-white">
+                                            <span class="text-slate-600">-</span>
+                                            <input type="text" name="hora_finalitzacio" inputmode="numeric" autocomplete="off"
+                                                placeholder="HH:MM" maxlength="5"
+                                                class="form-input flex-1 rounded-xl px-1 py-1.5 outline-none text-[11px] text-white">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="space-y-1">
+                                            <label
+                                                class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Participants</label>
+                                            <input type="number" name="participants"
+                                                class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label
+                                                class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Categoria</label>
+                                            <input type="text" name="categoria"
+                                                class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button"
+                            class="add-activity-btn w-full mt-2 py-2 rounded-xl text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 hover:text-indigo-400 transition-all hover:bg-slate-800/50">
+                            + Afegir activitat (tarda/nit)
+                        </button>
+                    </div>
+
+                    <!-- Domingo -->
+                    <div class="day-group" data-day-name="Diumenge">
+                        <h2 class="text-base font-bold text-white mb-2 flex items-center gap-2">
+                            <span
+                                class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            Diumenge
+                        </h2>
+                        <div class="activities-list space-y-3 relative">
+                            <!-- Actividad 1 -->
+                            <div
+                                class="activity-card glass rounded-2xl p-3 relative group animate-slide-up bg-slate-800/40">
+                                <input type="hidden" name="dia_setmana" value="Diumenge">
+                                <div class="grid grid-cols-[140px_1fr] gap-x-8 gap-y-2.5 items-start">
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Data</label>
+                                        <input type="date" name="data"
+                                            class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Activitat</label>
+                                        <input type="text" name="activitat"
+                                            class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label
+                                            class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Horari</label>
+                                        <div class="flex items-center gap-1 h-[36px]">
+                                            <input type="text" name="hora_convocatoria" inputmode="numeric" autocomplete="off"
+                                                placeholder="HH:MM" maxlength="5"
+                                                class="form-input flex-1 rounded-xl px-1 py-1.5 outline-none text-[11px] text-white">
+                                            <span class="text-slate-600">-</span>
+                                            <input type="text" name="hora_finalitzacio" inputmode="numeric" autocomplete="off"
+                                                placeholder="HH:MM" maxlength="5"
+                                                class="form-input flex-1 rounded-xl px-1 py-1.5 outline-none text-[11px] text-white">
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="space-y-1">
+                                            <label
+                                                class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Participants</label>
+                                            <input type="number" name="participants"
+                                                class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label
+                                                class="text-[9px] font-semibold text-slate-500 uppercase tracking-wider ml-1">Categoria</label>
+                                            <input type="text" name="categoria"
+                                                class="form-input w-full rounded-xl px-2 py-1.5 outline-none text-xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button"
+                            class="add-activity-btn w-full mt-2 py-2 rounded-xl text-slate-400 text-xs font-semibold flex items-center justify-center gap-2 hover:text-indigo-400 transition-all hover:bg-slate-800/50">
+                            + Afegir activitat (tarda/nit)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-24"></div> <!-- Increased spacer for sticky button clearance -->
+
+            <!-- Sticky Submit -->
+            <div class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-lg z-50">
+                <button type="submit"
+                    class="w-full btn-premium py-2 rounded-xl flex items-center justify-center gap-2 text-base font-bold shadow-2xl uppercase tracking-widest">
+                    <img src="public/whatsapp.png" alt="WhatsApp" class="h-5 w-5 object-contain">
+                    ENVIAR
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Hide interaction elements during capture */
+        .capturing .add-activity-btn,
+        .capturing .remove-btn {
+            display: none !important;
+        }
+
+        .capturing .activity-card {
+            margin-bottom: 12px !important;
+            animation: none !important;
+            transform: none !important;
+        }
+
+        /* Ensure input values are visible in canvas */
+        .capturing input {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
+            border: none !important;
+        }
+    </style>
+
+    <script>
+        const reportForm = document.getElementById('reportForm');
+        const TIME_INPUT_SELECTOR = 'input[name="hora_convocatoria"], input[name="hora_finalitzacio"]';
+
+        function formatTimePartial(raw) {
+            const digits = String(raw || '').replace(/\D/g, '').slice(0, 4); // HHMM
+            if (digits.length <= 2) return digits;
+            return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+        }
+
+        function isValidTime24h(value) {
+            if (!value) return true; // allow empty
+            if (!/^\d{2}:\d{2}$/.test(value)) return false;
+            const [hhStr, mmStr] = value.split(':');
+            const hh = Number(hhStr);
+            const mm = Number(mmStr);
+            if (!Number.isInteger(hh) || !Number.isInteger(mm)) return false;
+            if (mm < 0 || mm > 59) return false;
+            if (hh === 24) return mm === 0; // allow 24:00 only
+            return hh >= 0 && hh <= 23;
+        }
+
+        function setTimeValidityUI(inputEl) {
+            const ok = isValidTime24h(inputEl.value);
+            inputEl.classList.toggle('ring-2', !ok);
+            inputEl.classList.toggle('ring-red-500', !ok);
+            inputEl.classList.toggle('ring-offset-0', !ok);
+            inputEl.setAttribute('aria-invalid', ok ? 'false' : 'true');
+        }
+
+        reportForm.addEventListener('input', (e) => {
+            const el = e.target;
+            if (!(el instanceof HTMLInputElement)) return;
+            if (!el.matches(TIME_INPUT_SELECTOR)) return;
+            const next = formatTimePartial(el.value);
+            if (next !== el.value) el.value = next;
+            setTimeValidityUI(el);
+        });
+
+        reportForm.addEventListener('blur', (e) => {
+            const el = e.target;
+            if (!(el instanceof HTMLInputElement)) return;
+            if (!el.matches(TIME_INPUT_SELECTOR)) return;
+            setTimeValidityUI(el);
+        }, true);
+
+        // Initial dates setup (Upcoming Saturday and Sunday)
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0 is Sunday, 6 is Saturday
+
+        const nextSaturday = new Date(today);
+        nextSaturday.setDate(today.getDate() + ((6 - dayOfWeek + 7) % 7));
+        if (dayOfWeek === 0) {
+            nextSaturday.setDate(today.getDate() - 1);
+        }
+        const nextSunday = new Date(nextSaturday);
+        nextSunday.setDate(nextSaturday.getDate() + 1);
+
+        document.querySelector('.day-group[data-day-name="Dissabte"] input[type="date"]').valueAsDate = nextSaturday;
+        document.querySelector('.day-group[data-day-name="Diumenge"] input[type="date"]').valueAsDate = nextSunday;
+
+        // Add 2nd activity (Tarda/Nit)
+        document.querySelectorAll('.add-activity-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const dayGroup = e.target.closest('.day-group');
+                const list = dayGroup.querySelector('.activities-list');
+                const firstCard = list.querySelector('.activity-card');
+
+                if (list.querySelectorAll('.activity-card').length >= 2) return;
+
+                const newActivity = firstCard.cloneNode(true);
+                newActivity.querySelectorAll('input:not([type="hidden"])').forEach(input => input.value = '');
+                newActivity.querySelectorAll(TIME_INPUT_SELECTOR).forEach(input => {
+                    input.classList.remove('ring-2', 'ring-red-500', 'ring-offset-0');
+                    input.setAttribute('aria-invalid', 'false');
+                });
+
+                // Inherit date from the first card
+                const firstDate = firstCard.querySelector('input[type="date"]').value;
+                if (firstDate) {
+                    newActivity.querySelector('input[type="date"]').value = firstDate;
+                }
+
+                // Add remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-btn absolute -top-3 -right-3 p-2 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 backdrop-blur shadow-lg transition-all z-10';
+                removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
+
+                newActivity.appendChild(removeBtn);
+
+                removeBtn.onclick = () => {
+                    newActivity.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        newActivity.remove();
+                        btn.style.display = 'flex';
+                    }, 300);
+                };
+
+                list.appendChild(newActivity);
+                newActivity.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                btn.style.display = 'none'; // Max 2 per day
+            });
+        });
+
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.submitter;
+            const originalBtnContent = btn.innerHTML;
+            const captureArea = document.getElementById('captureArea');
+
+            try {
+                btn.innerHTML = 'Generant imatge...';
+                btn.disabled = true;
+
+                // Add capturing class to hide buttons and adjust layout
+                document.body.classList.add('capturing');
+
+                // Small delay to ensure any open keyboards or focus rings are gone
+                await new Promise(r => setTimeout(r, 100));
+
+                const canvas = await html2canvas(captureArea, {
+                    backgroundColor: '#0f172a',
+                    scale: 2, // Double resolution for higher quality
+                    useCORS: true,
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        // Ensure input values are shown in the clone (html2canvas sometimes skips them)
+                        const originalInputs = captureArea.querySelectorAll('input');
+                        const clonedInputs = clonedDoc.getElementById('captureArea').querySelectorAll('input');
+                        originalInputs.forEach((input, i) => {
+                            clonedInputs[i].value = input.value;
+                        });
+                    }
+                });
+
+                document.body.classList.remove('capturing');
+
+                // --- SHARE ---
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                const file = new File([blob], 'report-marbella.png', { type: 'image/png' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Report Activitats Marbella',
+                        text: 'Aquí tens el resum de les activitats del cap de setmana.'
+                    });
+                } else {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'report-marbella.png';
+                    link.click();
+                }
+
+            } catch (err) {
+                console.error('Error:', err);
+                document.body.classList.remove('capturing');
+                alert("S'ha produït un error en generar la imatge.");
+            } finally {
+                btn.innerHTML = originalBtnContent;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
